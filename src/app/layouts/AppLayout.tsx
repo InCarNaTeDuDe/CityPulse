@@ -34,6 +34,15 @@ export const AppLayout: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
 
+  // Generate accessible unique IDs using React 19 useId hook
+  const actTitleId = React.useId();
+  const actDescId = React.useId();
+  const actLocId = React.useId();
+  const tktTitleId = React.useId();
+  const tktOrigPriceId = React.useId();
+  const tktSellPriceId = React.useId();
+  const tktLocId = React.useId();
+
   const prevUnreadCount = useRef(0);
   const prevUnreadNotifCount = useRef(0);
   const [animateInbox, setAnimateInbox] = useState(false);
@@ -81,20 +90,30 @@ export const AppLayout: React.FC = () => {
 
   // Poll unread messages
   React.useEffect(() => {
-    const checkUnreads = () => {
+    const checkUnreads = async () => {
+      if (!user) return;
       try {
+        const headers = {
+          "x-user-id": user.id,
+          "x-user-name": user.name,
+          "x-user-email": user.email,
+        };
+
         let currentChatsUnread = 0;
-        const saved = localStorage.getItem("dm_chats");
-        if (saved) {
-          const chats = JSON.parse(saved);
+        let currentNotifsUnread = 0;
+
+        // Fetch conversations
+        const chatsRes = await fetch("/api/conversations", { headers });
+        if (chatsRes.ok) {
+          const chats = await chatsRes.json();
           currentChatsUnread = chats.filter((c: any) => c.unread).length;
           setUnreadCount(currentChatsUnread);
         }
 
-        let currentNotifsUnread = 0;
-        const savedNotifs = localStorage.getItem("dm_notifications");
-        if (savedNotifs) {
-          const notifs = JSON.parse(savedNotifs);
+        // Fetch notifications
+        const notifsRes = await fetch("/api/notifications", { headers });
+        if (notifsRes.ok) {
+          const notifs = await notifsRes.json();
           currentNotifsUnread = notifs.filter((n: any) => !n.read).length;
           setUnreadNotifCount(currentNotifsUnread);
         }
@@ -123,13 +142,13 @@ export const AppLayout: React.FC = () => {
       }
     };
     checkUnreads();
-    const interval = setInterval(checkUnreads, 3000);
+    const interval = setInterval(checkUnreads, 4000);
     window.addEventListener("feed-reload", checkUnreads);
     return () => {
       clearInterval(interval);
       window.removeEventListener("feed-reload", checkUnreads);
     };
-  }, []);
+  }, [user]);
 
   // Forms state
   const [actTitle, setActTitle] = useState("");
@@ -211,50 +230,15 @@ export const AppLayout: React.FC = () => {
         return;
       }
     } catch (e) {
-      console.error("Failed to post activity to TypeORM backend", e);
+      console.error("Failed to post activity to backend", e);
     }
 
-    // Fallback logic
-    const savedActs = JSON.parse(localStorage.getItem("dm_activities") || "[]");
-    const newAct: Activity = {
-      id: `act_${Date.now()}`,
-      title: actTitle,
-      category: actCategory,
-      description: actDesc,
-      creatorId: user?.id || "user_bharath",
-      creatorName: user?.name || "Bharath",
-      creatorAvatar: user?.avatar || "",
-      creatorRating: user?.rating || 4.9,
-      peopleJoined: 1,
-      peopleNeeded: actPeopleNeeded,
-      joinedUsers: [
-        {
-          id: user?.id || "user_bharath",
-          name: user?.name || "Bharath",
-          avatar: user?.avatar || "",
-        },
-      ],
-      time: "Today, 6:00 PM",
-      location: actLocation,
-      distance: "0.1 km away",
-      isJoined: true,
-    };
-
-    localStorage.setItem(
-      "dm_activities",
-      JSON.stringify([newAct, ...savedActs]),
+    // Fallback logic removed per user requirement (no local storage cache)
+    toast(
+      "Failed to post activity to backend. Please check your connection.",
+      "error",
     );
-    toast("🎉 Activity posted nearby for today!");
-
-    // Reset Form
-    setActTitle("");
-    setActDesc("");
-    setActLocation("");
-    setActPeopleNeeded(3);
-    setIsDrawerOpen(false);
-
-    window.dispatchEvent(new CustomEvent("feed-reload"));
-    navigate("/app");
+    return;
   };
 
   const handleCreateTicket = async () => {
@@ -302,44 +286,15 @@ export const AppLayout: React.FC = () => {
         return;
       }
     } catch (e) {
-      console.error("Failed to list ticket on TypeORM backend", e);
+      console.error("Failed to list ticket on backend", e);
     }
 
-    // Fallback logic
-    const savedTkts = JSON.parse(localStorage.getItem("ts_tickets") || "[]");
-    const oPrice = parseFloat(tktOriginal);
-    const sPrice = parseFloat(tktSelling);
-
-    const newTkt: TicketType = {
-      id: `tkt_${Date.now()}`,
-      title: tktTitle,
-      category: tktCategory,
-      originalPrice: oPrice,
-      sellingPrice: sPrice,
-      connectFee: 5,
-      sellerId: user?.id || "user_bharath",
-      sellerName: user?.name || "Bharath",
-      sellerAvatar: user?.avatar || "",
-      sellerRating: user?.rating || 4.9,
-      quantity: 1,
-      location: tktLocation,
-      distance: "0.2 km away",
-      verified: true,
-      status: "available",
-    };
-
-    localStorage.setItem("ts_tickets", JSON.stringify([newTkt, ...savedTkts]));
-    toast("🎟 Ticket listed on TicketSwap!");
-
-    // Reset Form
-    setTktTitle("");
-    setTktOriginal("");
-    setTktSelling("");
-    setTktLocation("");
-    setIsDrawerOpen(false);
-
-    window.dispatchEvent(new CustomEvent("feed-reload"));
-    navigate("/app");
+    // Fallback logic removed per user requirement (no local storage cache)
+    toast(
+      "Failed to list ticket on backend. Please check your connection.",
+      "error",
+    );
+    return;
   };
 
   const openDrawer = () => {
@@ -362,9 +317,9 @@ export const AppLayout: React.FC = () => {
                 <h1 className="text-lg font-black tracking-tight leading-none text-neutral-900 dark:text-white">
                   DayMates
                 </h1>
-                {/* <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold tracking-wider mt-1 uppercase">
+                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold tracking-wider mt-1 uppercase">
                   Local Area
-                </p> */}
+                </p>
               </div>
             </div>
           </div>
@@ -490,20 +445,20 @@ export const AppLayout: React.FC = () => {
         <div className="w-full flex-1 flex flex-col relative overflow-hidden pb-24 md:pb-6 transition-[background-color] duration-150 text-neutral-900 dark:text-neutral-100">
           {/* Global Top Header Bar - Throughout Web & Mobile */}
           <header className="flex justify-between items-center px-5 py-3.5 border-b border-neutral-100 dark:border-neutral-900 bg-white/90 dark:bg-neutral-950/90 backdrop-blur-md sticky top-0 z-20 transition-[background-color,border-color] duration-150">
-            {/* <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">
                 ⚡
               </span>
               <span className="font-black text-sm tracking-tight text-neutral-800 dark:text-neutral-100">
                 DayMates
               </span>
-            </div> */}
+            </div>
 
-            <div className="flex items-center gap-3 ml-auto">
+            <div className="flex items-center gap-3">
               <span className="text-xs sm:text-sm font-black text-neutral-700 dark:text-neutral-300 inline-block truncate max-w-[160px] xs:max-w-[200px] sm:max-w-none">
-                👋 {getGreeting()},{" "}
+                👋 {getGreeting()},
                 <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">
-                  {user?.name?.split(" ")?.at(0) || ""}
+                  {user?.name || ""}
                 </span>
               </span>
 
@@ -745,7 +700,7 @@ export const AppLayout: React.FC = () => {
         {createType === "activity" && (
           <form onSubmit={handleActivitySubmit} className="flex flex-col gap-4">
             <Input
-              id="act-title-input"
+              id={actTitleId}
               label="What activity are you doing today?"
               placeholder="e.g. Cricket match at Turf, Coffee chat"
               value={actTitle}
@@ -785,7 +740,7 @@ export const AppLayout: React.FC = () => {
             </div>
 
             <TextArea
-              id="act-desc-input"
+              id={actDescId}
               label="Describe details (time, age-group, turf status)"
               placeholder="e.g. Turf booked for 6pm. Looking for 3 bowlers."
               value={actDesc}
@@ -793,7 +748,7 @@ export const AppLayout: React.FC = () => {
             />
 
             <Input
-              id="act-loc-input"
+              id={actLocId}
               label="Where is the meetup happening?"
               placeholder="e.g. Central Sports Ground, Starbucks Coffee"
               value={actLocation}
@@ -851,7 +806,7 @@ export const AppLayout: React.FC = () => {
         {createType === "ticket" && (
           <form onSubmit={handleTicketSubmit} className="flex flex-col gap-4">
             <Input
-              id="tkt-title-input"
+              id={tktTitleId}
               label="What event/movie is this ticket for?"
               placeholder="e.g. Superman Legacy 3D, F1 red zone ticket"
               value={tktTitle}
@@ -891,7 +846,7 @@ export const AppLayout: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <Input
-                id="tkt-orig-price"
+                id={tktOrigPriceId}
                 type="number"
                 label="Original Price (₹)"
                 placeholder="Original cost"
@@ -899,7 +854,7 @@ export const AppLayout: React.FC = () => {
                 onChange={(e) => setTktOriginal(e.target.value)}
               />
               <Input
-                id="tkt-sell-price"
+                id={tktSellPriceId}
                 type="number"
                 label="Selling Price (₹)"
                 placeholder="Discounted price"
@@ -909,7 +864,7 @@ export const AppLayout: React.FC = () => {
             </div>
 
             <Input
-              id="tkt-loc-input"
+              id={tktLocId}
               label="Theatre / Venue Name"
               placeholder="e.g. PVR Forum Mall, Jayanagar Stadium"
               value={tktLocation}
