@@ -470,14 +470,14 @@ export const AppLayout: React.FC = () => {
         <div className="w-full flex-1 flex flex-col relative overflow-hidden pb-24 md:pb-6 transition-[background-color] duration-150 text-neutral-900 dark:text-neutral-100">
           {/* Global Top Header Bar - Throughout Web & Mobile */}
           <header className="flex justify-between items-center px-5 py-3.5 border-b border-neutral-100 dark:border-neutral-900 bg-white/90 dark:bg-neutral-950/90 backdrop-blur-md sticky top-0 z-20 transition-[background-color,border-color] duration-150">
-            {/* <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:hidden">
               <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">
                 ⚡
               </span>
               <span className="font-black text-sm tracking-tight text-neutral-800 dark:text-neutral-100">
                 DayMates
               </span>
-            </div> */}
+            </div>
 
             <div className="ml-auto flex items-center gap-3">
               <span className="flex items-center text-xs sm:text-sm font-black text-neutral-700 dark:text-neutral-300 truncate max-w-[220px] sm:max-w-none">
