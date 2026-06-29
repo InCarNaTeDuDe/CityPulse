@@ -362,9 +362,9 @@ export const AppLayout: React.FC = () => {
                 <h1 className="text-lg font-black tracking-tight leading-none text-neutral-900 dark:text-white">
                   DayMates
                 </h1>
-                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold tracking-wider mt-1 uppercase">
+                {/* <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold tracking-wider mt-1 uppercase">
                   Local Area
-                </p>
+                </p> */}
               </div>
             </div>
           </div>
@@ -490,20 +490,20 @@ export const AppLayout: React.FC = () => {
         <div className="w-full flex-1 flex flex-col relative overflow-hidden pb-24 md:pb-6 transition-[background-color] duration-150 text-neutral-900 dark:text-neutral-100">
           {/* Global Top Header Bar - Throughout Web & Mobile */}
           <header className="flex justify-between items-center px-5 py-3.5 border-b border-neutral-100 dark:border-neutral-900 bg-white/90 dark:bg-neutral-950/90 backdrop-blur-md sticky top-0 z-20 transition-[background-color,border-color] duration-150">
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">
                 ⚡
               </span>
               <span className="font-black text-sm tracking-tight text-neutral-800 dark:text-neutral-100">
                 DayMates
               </span>
-            </div>
+            </div> */}
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 ml-auto">
               <span className="text-xs sm:text-sm font-black text-neutral-700 dark:text-neutral-300 inline-block truncate max-w-[160px] xs:max-w-[200px] sm:max-w-none">
                 👋 {getGreeting()},{" "}
                 <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">
-                  {user?.name || "Bharath"}
+                  {user?.name?.split(" ")?.at(0) || ""}
                 </span>
               </span>
 
