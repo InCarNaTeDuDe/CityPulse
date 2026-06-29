@@ -546,7 +546,7 @@ export const AppLayout: React.FC = () => {
           </div>
 
           {/* Floating/Bottom Action Bar - Strictly Mobile Only */}
-          <div className="md:hidden fixed bottom-5 left-4 right-4 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-lg border border-neutral-200/50 dark:border-neutral-900/80 px-4 py-3 flex justify-around items-center z-30 rounded-2xl shadow-xl shadow-black/5 dark:shadow-black/30 transition-all duration-200">
+          <div className="md:hidden fixed bottom-0 left-4 right-4 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-lg border border-neutral-200/50 dark:border-neutral-900/80 px-4 py-3 flex justify-around items-center z-30 rounded-2xl shadow-xl shadow-black/5 dark:shadow-black/30 transition-all duration-200">
             <button
               id="tab-home"
               onClick={() => navigate("/")}
