@@ -1,14 +1,26 @@
-import React, { useState, useTransition, useRef } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, MessageSquare, Plus, Bell, User as UserIcon, Calendar, Ticket, Award, HelpCircle, Sun, Moon } from 'lucide-react';
-import { useAuth } from '@/src/shared/auth/useAuth';
-import { useTheme } from '@/src/shared/theme/ThemeContext';
-import Drawer from '@/src/shared/components/Drawer';
-import Button from '@/src/shared/components/Button';
-import Input from '@/src/shared/components/Input';
-import TextArea from '@/src/shared/components/TextArea';
-import { toast, ToastContainer } from '@/src/shared/components/Toast';
-import { Activity, Ticket as TicketType } from '@/src/shared/types';
+import React, { useState, useTransition, useRef } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import {
+  Home,
+  MessageSquare,
+  Plus,
+  Bell,
+  User as UserIcon,
+  Calendar,
+  Ticket,
+  Award,
+  HelpCircle,
+  Sun,
+  Moon,
+} from "lucide-react";
+import { useAuth } from "@/src/shared/auth/useAuth";
+import { useTheme } from "@/src/shared/theme/ThemeContext";
+import Drawer from "@/src/shared/components/Drawer";
+import Button from "@/src/shared/components/Button";
+import Input from "@/src/shared/components/Input";
+import TextArea from "@/src/shared/components/TextArea";
+import { toast, ToastContainer } from "@/src/shared/components/Toast";
+import { Activity, Ticket as TicketType } from "@/src/shared/types";
 
 export const AppLayout: React.FC = () => {
   const { user } = useAuth();
@@ -16,7 +28,9 @@ export const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [createType, setCreateType] = useState<'menu' | 'activity' | 'ticket' | 'event' | 'ask'>('menu');
+  const [createType, setCreateType] = useState<
+    "menu" | "activity" | "ticket" | "event" | "ask"
+  >("menu");
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
 
@@ -27,33 +41,41 @@ export const AppLayout: React.FC = () => {
 
   const getGreeting = () => {
     const hours = new Date().getHours();
-    if (hours < 12) return 'Good Morning';
-    if (hours < 18) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hours < 12) return "Good Morning";
+    if (hours < 18) return "Good Afternoon";
+    return "Good Evening";
   };
 
   // Web Audio API beep sound
   const playNotificationSound = () => {
     try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioCtx = new (
+        window.AudioContext || (window as any).webkitAudioContext
+      )();
       const oscillator = audioCtx.createOscillator();
       const gainNode = audioCtx.createGain();
-      
+
       oscillator.connect(gainNode);
       gainNode.connect(audioCtx.destination);
-      
-      oscillator.type = 'sine';
+
+      oscillator.type = "sine";
       // Pleasant alert: high pitched 2-step beep
       oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-      oscillator.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); // A5
-      
+      oscillator.frequency.setValueAtTime(880.0, audioCtx.currentTime + 0.1); // A5
+
       gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
-      
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioCtx.currentTime + 0.25,
+      );
+
       oscillator.start();
       oscillator.stop(audioCtx.currentTime + 0.25);
     } catch (e) {
-      console.warn("Web Audio API not supported or blocked by user gesture:", e);
+      console.warn(
+        "Web Audio API not supported or blocked by user gesture:",
+        e,
+      );
     }
   };
 
@@ -62,7 +84,7 @@ export const AppLayout: React.FC = () => {
     const checkUnreads = () => {
       try {
         let currentChatsUnread = 0;
-        const saved = localStorage.getItem('dm_chats');
+        const saved = localStorage.getItem("dm_chats");
         if (saved) {
           const chats = JSON.parse(saved);
           currentChatsUnread = chats.filter((c: any) => c.unread).length;
@@ -70,7 +92,7 @@ export const AppLayout: React.FC = () => {
         }
 
         let currentNotifsUnread = 0;
-        const savedNotifs = localStorage.getItem('dm_notifications');
+        const savedNotifs = localStorage.getItem("dm_notifications");
         if (savedNotifs) {
           const notifs = JSON.parse(savedNotifs);
           currentNotifsUnread = notifs.filter((n: any) => !n.read).length;
@@ -102,25 +124,29 @@ export const AppLayout: React.FC = () => {
     };
     checkUnreads();
     const interval = setInterval(checkUnreads, 3000);
-    window.addEventListener('feed-reload', checkUnreads);
+    window.addEventListener("feed-reload", checkUnreads);
     return () => {
       clearInterval(interval);
-      window.removeEventListener('feed-reload', checkUnreads);
+      window.removeEventListener("feed-reload", checkUnreads);
     };
   }, []);
 
   // Forms state
-  const [actTitle, setActTitle] = useState('');
-  const [actCategory, setActCategory] = useState<'Cricket' | 'Coffee' | 'Movie' | 'Lunch' | 'Badminton' | 'Pizza' | 'Other'>('Coffee');
-  const [actDesc, setActDesc] = useState('');
-  const [actLocation, setActLocation] = useState('');
+  const [actTitle, setActTitle] = useState("");
+  const [actCategory, setActCategory] = useState<
+    "Cricket" | "Coffee" | "Movie" | "Lunch" | "Badminton" | "Pizza" | "Other"
+  >("Coffee");
+  const [actDesc, setActDesc] = useState("");
+  const [actLocation, setActLocation] = useState("");
   const [actPeopleNeeded, setActPeopleNeeded] = useState(3);
 
-  const [tktTitle, setTktTitle] = useState('');
-  const [tktCategory, setTktCategory] = useState<'Movie' | 'F1' | 'Concert' | 'Sports' | 'Drama' | 'Other'>('Movie');
-  const [tktOriginal, setTktOriginal] = useState('');
-  const [tktSelling, setTktSelling] = useState('');
-  const [tktLocation, setTktLocation] = useState('');
+  const [tktTitle, setTktTitle] = useState("");
+  const [tktCategory, setTktCategory] = useState<
+    "Movie" | "F1" | "Concert" | "Sports" | "Drama" | "Other"
+  >("Movie");
+  const [tktOriginal, setTktOriginal] = useState("");
+  const [tktSelling, setTktSelling] = useState("");
+  const [tktLocation, setTktLocation] = useState("");
 
   const currentTab = location.pathname;
 
@@ -142,100 +168,109 @@ export const AppLayout: React.FC = () => {
 
   const handleCreateActivity = async () => {
     if (!actTitle || !actDesc || !actLocation) {
-      toast('Please fill out all fields', 'warning');
+      toast("Please fill out all fields", "warning");
       return;
     }
 
     try {
-      const res = await fetch('/api/activities', {
-        method: 'POST',
+      const res = await fetch("/api/activities", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': user?.id || '',
-          'x-user-name': user?.name || '',
-          'x-user-email': user?.email || '',
+          "Content-Type": "application/json",
+          "x-user-id": user?.id || "",
+          "x-user-name": user?.name || "",
+          "x-user-email": user?.email || "",
         },
         body: JSON.stringify({
           title: actTitle,
           category: actCategory,
           description: actDesc,
           peopleNeeded: actPeopleNeeded,
-          time: 'Today, 6:00 PM',
+          time: "Today, 6:00 PM",
           location: actLocation,
         }),
       });
 
       if (res.ok) {
-        toast('🎉 Activity posted nearby for today!');
-        
+        toast("🎉 Activity posted nearby for today!");
+
         // Reset Form
-        setActTitle('');
-        setActDesc('');
-        setActLocation('');
+        setActTitle("");
+        setActDesc("");
+        setActLocation("");
         setActPeopleNeeded(3);
         setIsDrawerOpen(false);
-        
+
         // Trigger custom event so feeds reload immediately
-        window.dispatchEvent(new CustomEvent('feed-reload'));
-        navigate('/app');
+        window.dispatchEvent(new CustomEvent("feed-reload"));
+        navigate("/app");
         return;
       } else {
         const err = await res.json();
-        toast(err.error || 'Failed to list activity', 'error');
+        toast(err.error || "Failed to list activity", "error");
         return;
       }
     } catch (e) {
-      console.error('Failed to post activity to TypeORM backend', e);
+      console.error("Failed to post activity to TypeORM backend", e);
     }
 
     // Fallback logic
-    const savedActs = JSON.parse(localStorage.getItem('dm_activities') || '[]');
+    const savedActs = JSON.parse(localStorage.getItem("dm_activities") || "[]");
     const newAct: Activity = {
       id: `act_${Date.now()}`,
       title: actTitle,
       category: actCategory,
       description: actDesc,
-      creatorId: user?.id || 'user_bharath',
-      creatorName: user?.name || 'Bharath',
-      creatorAvatar: user?.avatar || '',
+      creatorId: user?.id || "user_bharath",
+      creatorName: user?.name || "Bharath",
+      creatorAvatar: user?.avatar || "",
       creatorRating: user?.rating || 4.9,
       peopleJoined: 1,
       peopleNeeded: actPeopleNeeded,
-      joinedUsers: [{ id: user?.id || 'user_bharath', name: user?.name || 'Bharath', avatar: user?.avatar || '' }],
-      time: 'Today, 6:00 PM',
+      joinedUsers: [
+        {
+          id: user?.id || "user_bharath",
+          name: user?.name || "Bharath",
+          avatar: user?.avatar || "",
+        },
+      ],
+      time: "Today, 6:00 PM",
       location: actLocation,
-      distance: '0.1 km away',
-      isJoined: true
+      distance: "0.1 km away",
+      isJoined: true,
     };
 
-    localStorage.setItem('dm_activities', JSON.stringify([newAct, ...savedActs]));
-    toast('🎉 Activity posted nearby for today!');
-    
+    localStorage.setItem(
+      "dm_activities",
+      JSON.stringify([newAct, ...savedActs]),
+    );
+    toast("🎉 Activity posted nearby for today!");
+
     // Reset Form
-    setActTitle('');
-    setActDesc('');
-    setActLocation('');
+    setActTitle("");
+    setActDesc("");
+    setActLocation("");
     setActPeopleNeeded(3);
     setIsDrawerOpen(false);
-    
-    window.dispatchEvent(new CustomEvent('feed-reload'));
-    navigate('/app');
+
+    window.dispatchEvent(new CustomEvent("feed-reload"));
+    navigate("/app");
   };
 
   const handleCreateTicket = async () => {
     if (!tktTitle || !tktOriginal || !tktSelling || !tktLocation) {
-      toast('Please fill out all fields', 'warning');
+      toast("Please fill out all fields", "warning");
       return;
     }
 
     try {
-      const res = await fetch('/api/tickets', {
-        method: 'POST',
+      const res = await fetch("/api/tickets", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': user?.id || '',
-          'x-user-name': user?.name || '',
-          'x-user-email': user?.email || '',
+          "Content-Type": "application/json",
+          "x-user-id": user?.id || "",
+          "x-user-name": user?.name || "",
+          "x-user-email": user?.email || "",
         },
         body: JSON.stringify({
           title: tktTitle,
@@ -248,30 +283,30 @@ export const AppLayout: React.FC = () => {
       });
 
       if (res.ok) {
-        toast('🎟 Ticket listed on TicketSwap!');
-        
+        toast("🎟 Ticket listed on TicketSwap!");
+
         // Reset Form
-        setTktTitle('');
-        setTktOriginal('');
-        setTktSelling('');
-        setTktLocation('');
+        setTktTitle("");
+        setTktOriginal("");
+        setTktSelling("");
+        setTktLocation("");
         setIsDrawerOpen(false);
 
         // Trigger custom event so feeds reload immediately
-        window.dispatchEvent(new CustomEvent('feed-reload'));
-        navigate('/app');
+        window.dispatchEvent(new CustomEvent("feed-reload"));
+        navigate("/app");
         return;
       } else {
         const err = await res.json();
-        toast(err.error || 'Failed to list ticket', 'error');
+        toast(err.error || "Failed to list ticket", "error");
         return;
       }
     } catch (e) {
-      console.error('Failed to list ticket on TypeORM backend', e);
+      console.error("Failed to list ticket on TypeORM backend", e);
     }
 
     // Fallback logic
-    const savedTkts = JSON.parse(localStorage.getItem('ts_tickets') || '[]');
+    const savedTkts = JSON.parse(localStorage.getItem("ts_tickets") || "[]");
     const oPrice = parseFloat(tktOriginal);
     const sPrice = parseFloat(tktSelling);
 
@@ -282,39 +317,38 @@ export const AppLayout: React.FC = () => {
       originalPrice: oPrice,
       sellingPrice: sPrice,
       connectFee: 5,
-      sellerId: user?.id || 'user_bharath',
-      sellerName: user?.name || 'Bharath',
-      sellerAvatar: user?.avatar || '',
+      sellerId: user?.id || "user_bharath",
+      sellerName: user?.name || "Bharath",
+      sellerAvatar: user?.avatar || "",
       sellerRating: user?.rating || 4.9,
       quantity: 1,
       location: tktLocation,
-      distance: '0.2 km away',
+      distance: "0.2 km away",
       verified: true,
-      status: 'available'
+      status: "available",
     };
 
-    localStorage.setItem('ts_tickets', JSON.stringify([newTkt, ...savedTkts]));
-    toast('🎟 Ticket listed on TicketSwap!');
+    localStorage.setItem("ts_tickets", JSON.stringify([newTkt, ...savedTkts]));
+    toast("🎟 Ticket listed on TicketSwap!");
 
     // Reset Form
-    setTktTitle('');
-    setTktOriginal('');
-    setTktSelling('');
-    setTktLocation('');
+    setTktTitle("");
+    setTktOriginal("");
+    setTktSelling("");
+    setTktLocation("");
     setIsDrawerOpen(false);
 
-    window.dispatchEvent(new CustomEvent('feed-reload'));
-    navigate('/app');
+    window.dispatchEvent(new CustomEvent("feed-reload"));
+    navigate("/app");
   };
 
   const openDrawer = () => {
-    setCreateType('menu');
+    setCreateType("menu");
     setIsDrawerOpen(true);
   };
 
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950 flex flex-col md:flex-row items-stretch transition-[background-color] duration-150">
-      
       {/* 1. Desktop Left Sidebar Navigation (visible only on md and up) */}
       <aside className="hidden md:flex md:w-64 lg:w-80 bg-white dark:bg-neutral-950 border-r border-neutral-100 dark:border-neutral-900 flex-col justify-between p-6 shrink-0 transition-[background-color,border-color] duration-150 text-neutral-900 dark:text-neutral-100">
         <div className="flex flex-col gap-8">
@@ -325,8 +359,12 @@ export const AppLayout: React.FC = () => {
                 ⚡
               </div>
               <div>
-                <h1 className="text-lg font-black tracking-tight leading-none text-neutral-900 dark:text-white">DayMates</h1>
-                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold tracking-wider mt-1 uppercase">Local Area</p>
+                <h1 className="text-lg font-black tracking-tight leading-none text-neutral-900 dark:text-white">
+                  DayMates
+                </h1>
+                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold tracking-wider mt-1 uppercase">
+                  Local Area
+                </p>
               </div>
             </div>
           </div>
@@ -335,14 +373,19 @@ export const AppLayout: React.FC = () => {
           {user && (
             <div className="bg-neutral-50 dark:bg-neutral-900/50 rounded-2xl p-4 border border-neutral-100/50 dark:border-neutral-800/50 flex items-center gap-3">
               <img
-                src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=3b82f6&color=fff&bold=true`}
+                src={
+                  user.avatar ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=3b82f6&color=fff&bold=true`
+                }
                 alt={user.name}
                 className="w-11 h-11 rounded-full object-cover border-2 border-emerald-500"
               />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-black truncate">{user.name}</p>
                 <div className="flex items-center gap-1 mt-0.5">
-                  <span className="text-[10px] text-emerald-500 font-bold">Verified ✅</span>
+                  <span className="text-[10px] text-emerald-500 font-bold">
+                    Verified ✅
+                  </span>
                 </div>
               </div>
             </div>
@@ -351,11 +394,11 @@ export const AppLayout: React.FC = () => {
           {/* Navigation Links */}
           <nav className="flex flex-col gap-1.5">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-black text-left cursor-pointer ${
-                currentTab === '/'
-                  ? 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-neutral-950 shadow-md shadow-emerald-600/20'
-                  : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-900/50'
+                currentTab === "/"
+                  ? "bg-emerald-600 text-white dark:bg-emerald-500 dark:text-neutral-950 shadow-md shadow-emerald-600/20"
+                  : "text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
               }`}
             >
               <Home className="w-4 h-4 stroke-[2.2]" />
@@ -363,14 +406,16 @@ export const AppLayout: React.FC = () => {
             </button>
 
             <button
-              onClick={() => navigate('/chats')}
+              onClick={() => navigate("/chats")}
               className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-black text-left cursor-pointer relative ${
-                currentTab === '/chats'
-                  ? 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-neutral-950 shadow-md shadow-emerald-600/20'
-                  : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-900/50'
-              } ${animateInbox ? 'animate-blink-inbox' : ''}`}
+                currentTab === "/chats"
+                  ? "bg-emerald-600 text-white dark:bg-emerald-500 dark:text-neutral-950 shadow-md shadow-emerald-600/20"
+                  : "text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
+              } ${animateInbox ? "animate-blink-inbox" : ""}`}
             >
-              <MessageSquare className={`w-4 h-4 stroke-[2.2] ${unreadCount > 0 ? 'text-rose-500 animate-pulse' : ''}`} />
+              <MessageSquare
+                className={`w-4 h-4 stroke-[2.2] ${unreadCount > 0 ? "text-rose-500 animate-pulse" : ""}`}
+              />
               <span className="flex-1">Chats</span>
               {unreadCount > 0 && (
                 <span className="absolute right-4 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
@@ -380,30 +425,38 @@ export const AppLayout: React.FC = () => {
             </button>
 
             <button
-              onClick={() => navigate('/notifications')}
+              onClick={() => navigate("/notifications")}
               className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-black text-left cursor-pointer relative ${
-                currentTab === '/notifications'
-                  ? 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-neutral-950 shadow-md shadow-emerald-600/20'
-                  : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-900/50'
+                currentTab === "/notifications"
+                  ? "bg-emerald-600 text-white dark:bg-emerald-500 dark:text-neutral-950 shadow-md shadow-emerald-600/20"
+                  : "text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
               }`}
             >
-              <div className={unreadNotifCount > 0 || animateAlerts ? 'animate-bell-shake' : ''}>
+              <div
+                className={
+                  unreadNotifCount > 0 || animateAlerts
+                    ? "animate-bell-shake"
+                    : ""
+                }
+              >
                 <Bell className="w-4 h-4 stroke-[2.2]" />
               </div>
               <span className="flex-1 font-black">Alerts</span>
               {unreadNotifCount > 0 && (
-                <span className={`absolute right-4 bg-emerald-500 dark:bg-emerald-400 text-white dark:text-neutral-950 text-[10px] font-bold px-2 py-0.5 rounded-full ${unreadNotifCount > 0 ? 'animate-badge-scale' : ''}`}>
+                <span
+                  className={`absolute right-4 bg-emerald-500 dark:bg-emerald-400 text-white dark:text-neutral-950 text-[10px] font-bold px-2 py-0.5 rounded-full ${unreadNotifCount > 0 ? "animate-badge-scale" : ""}`}
+                >
                   {unreadNotifCount}
                 </span>
               )}
             </button>
 
             <button
-              onClick={() => navigate('/profile')}
+              onClick={() => navigate("/profile")}
               className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-black text-left cursor-pointer ${
-                currentTab === '/profile'
-                  ? 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-neutral-950 shadow-md shadow-emerald-600/20'
-                  : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-900/50'
+                currentTab === "/profile"
+                  ? "bg-emerald-600 text-white dark:bg-emerald-500 dark:text-neutral-950 shadow-md shadow-emerald-600/20"
+                  : "text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
               }`}
             >
               <UserIcon className="w-4 h-4 stroke-[2.2]" />
@@ -423,47 +476,61 @@ export const AppLayout: React.FC = () => {
 
         {/* Sidebar Footer - Clean branding only */}
         <div className="flex items-center justify-between pt-4 border-t border-neutral-100 dark:border-neutral-900">
-          <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">DayMates © 2026</span>
-          <span className="text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400">v1.1</span>
+          <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
+            DayMates © 2026
+          </span>
+          <span className="text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400">
+            v1.1
+          </span>
         </div>
       </aside>
 
       {/* 2. Main Area Container (fully responsive) */}
       <main className="flex-1 flex flex-col justify-start items-stretch overflow-y-auto max-w-full bg-white dark:bg-neutral-950">
         <div className="w-full flex-1 flex flex-col relative overflow-hidden pb-24 md:pb-6 transition-[background-color] duration-150 text-neutral-900 dark:text-neutral-100">
-          
           {/* Global Top Header Bar - Throughout Web & Mobile */}
           <header className="flex justify-between items-center px-5 py-3.5 border-b border-neutral-100 dark:border-neutral-900 bg-white/90 dark:bg-neutral-950/90 backdrop-blur-md sticky top-0 z-20 transition-[background-color,border-color] duration-150">
             <div className="flex items-center gap-2">
-              <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">⚡</span>
-              <span className="font-mono font-black text-xs tracking-wider uppercase text-neutral-800 dark:text-neutral-100">
-                DayMates &lt;&gt; TicketSwap
+              <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">
+                ⚡
+              </span>
+              <span className="font-black text-sm tracking-tight text-neutral-800 dark:text-neutral-100">
+                DayMates
               </span>
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-xs sm:text-sm font-black text-neutral-700 dark:text-neutral-300 inline-block truncate max-w-[120px] min-[400px]:max-w-[180px] sm:max-w-none">
-                👋 {getGreeting()}, <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">{user?.name || 'Bharath'}</span>
+              <span className="text-xs sm:text-sm font-black text-neutral-700 dark:text-neutral-300 inline-block truncate max-w-[160px] xs:max-w-[200px] sm:max-w-none">
+                👋 {getGreeting()},{" "}
+                <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">
+                  {user?.name || "Bharath"}
+                </span>
               </span>
-              
+
               <button
                 onClick={toggleTheme}
                 className="p-1.5 rounded-xl border border-neutral-200/50 dark:border-neutral-800/80 bg-neutral-50 dark:bg-neutral-900/40 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition duration-150 cursor-pointer"
                 title="Toggle Theme"
               >
-                {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                {theme === "light" ? (
+                  <Moon className="w-4 h-4" />
+                ) : (
+                  <Sun className="w-4 h-4" />
+                )}
               </button>
 
               <button
-                onClick={() => navigate('/chats')}
+                onClick={() => navigate("/chats")}
                 className={`relative flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all duration-200 cursor-pointer ${
-                  currentTab === '/chats'
-                    ? 'bg-emerald-600 border-emerald-600 text-white dark:bg-emerald-500 dark:border-emerald-500 dark:text-neutral-950 font-black shadow-sm'
-                    : 'bg-neutral-50 border-neutral-200/50 dark:bg-neutral-900/40 dark:border-neutral-800/85 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                } ${animateInbox ? 'animate-blink-inbox' : ''}`}
+                  currentTab === "/chats"
+                    ? "bg-emerald-600 border-emerald-600 text-white dark:bg-emerald-500 dark:border-emerald-500 dark:text-neutral-950 font-black shadow-sm"
+                    : "bg-neutral-50 border-neutral-200/50 dark:bg-neutral-900/40 dark:border-neutral-800/85 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                } ${animateInbox ? "animate-blink-inbox" : ""}`}
               >
-                <MessageSquare className={`w-3.5 h-3.5 ${unreadCount > 0 ? 'text-rose-500 animate-pulse' : ''}`} />
-                <span className="font-bold">Inbox</span>
+                <MessageSquare
+                  className={`w-3.5 h-3.5 ${unreadCount > 0 ? "text-rose-500 animate-pulse" : ""}`}
+                />
+                <span className="font-bold hidden sm:inline">Inbox</span>
                 {unreadCount > 0 && (
                   <span className="bg-rose-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full animate-pulse">
                     {unreadCount}
@@ -472,19 +539,21 @@ export const AppLayout: React.FC = () => {
               </button>
             </div>
           </header>
-          
+
           {/* Core Screen Context */}
           <div className="flex-1 overflow-y-auto">
             <Outlet />
           </div>
 
           {/* Floating/Bottom Action Bar - Strictly Mobile Only */}
-          <div className="md:hidden absolute bottom-0 left-0 right-0 bg-white/85 dark:bg-neutral-950/85 backdrop-blur-lg border-t border-neutral-100/80 dark:border-neutral-900/80 px-4 py-3 flex justify-around items-center z-30 transition-colors duration-200">
+          <div className="md:hidden fixed bottom-5 left-4 right-4 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-lg border border-neutral-200/50 dark:border-neutral-900/80 px-4 py-3 flex justify-around items-center z-30 rounded-2xl shadow-xl shadow-black/5 dark:shadow-black/30 transition-all duration-200">
             <button
               id="tab-home"
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className={`flex flex-col items-center gap-1 transition ${
-                currentTab === '/' ? 'text-emerald-600 dark:text-emerald-400 scale-105 font-black' : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'
+                currentTab === "/"
+                  ? "text-emerald-600 dark:text-emerald-400 scale-105 font-black"
+                  : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
               }`}
             >
               <Home className="w-5 h-5 stroke-[2.2]" />
@@ -493,9 +562,11 @@ export const AppLayout: React.FC = () => {
 
             <button
               id="tab-chats"
-              onClick={() => navigate('/chats')}
+              onClick={() => navigate("/chats")}
               className={`flex flex-col items-center gap-1 transition relative ${
-                currentTab === '/chats' ? 'text-emerald-600 dark:text-emerald-400 scale-105 font-black' : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'
+                currentTab === "/chats"
+                  ? "text-emerald-600 dark:text-emerald-400 scale-105 font-black"
+                  : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
               }`}
             >
               <div className="relative">
@@ -522,17 +593,27 @@ export const AppLayout: React.FC = () => {
 
             <button
               id="tab-notifications"
-              onClick={() => navigate('/notifications')}
+              onClick={() => navigate("/notifications")}
               className={`flex flex-col items-center gap-1 transition relative ${
-                currentTab === '/notifications' ? 'text-emerald-600 dark:text-emerald-400 scale-105 font-black' : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'
+                currentTab === "/notifications"
+                  ? "text-emerald-600 dark:text-emerald-400 scale-105 font-black"
+                  : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
               }`}
             >
               <div className="relative">
-                <div className={unreadNotifCount > 0 || animateAlerts ? 'animate-bell-shake' : ''}>
+                <div
+                  className={
+                    unreadNotifCount > 0 || animateAlerts
+                      ? "animate-bell-shake"
+                      : ""
+                  }
+                >
                   <Bell className="w-5 h-5 stroke-[2.2]" />
                 </div>
                 {unreadNotifCount > 0 && (
-                  <span className={`absolute -top-1 -right-2 bg-emerald-500 text-white text-[8px] font-extrabold px-1 rounded-full min-w-4 text-center ${unreadNotifCount > 0 ? 'animate-badge-scale' : ''}`}>
+                  <span
+                    className={`absolute -top-1 -right-2 bg-emerald-500 text-white text-[8px] font-extrabold px-1 rounded-full min-w-4 text-center ${unreadNotifCount > 0 ? "animate-badge-scale" : ""}`}
+                  >
                     {unreadNotifCount}
                   </span>
                 )}
@@ -542,9 +623,11 @@ export const AppLayout: React.FC = () => {
 
             <button
               id="tab-profile"
-              onClick={() => navigate('/profile')}
+              onClick={() => navigate("/profile")}
               className={`flex flex-col items-center gap-1 transition ${
-                currentTab === '/profile' ? 'text-emerald-600 dark:text-emerald-400 scale-105 font-black' : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'
+                currentTab === "/profile"
+                  ? "text-emerald-600 dark:text-emerald-400 scale-105 font-black"
+                  : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
               }`}
             >
               <UserIcon className="w-5 h-5 stroke-[2.2]" />
@@ -562,52 +645,62 @@ export const AppLayout: React.FC = () => {
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         title={
-          createType === 'menu'
-            ? 'What would you like to do today?'
-            : createType === 'activity'
-            ? '👥 Find Day Mates'
-            : createType === 'ticket'
-            ? '🎟 Sell Event Ticket'
-            : createType === 'event'
-            ? 'Host Local Event'
-            : 'Ask Something Nearby'
+          createType === "menu"
+            ? "What would you like to do today?"
+            : createType === "activity"
+              ? "👥 Find Day Mates"
+              : createType === "ticket"
+                ? "🎟 Sell Event Ticket"
+                : createType === "event"
+                  ? "Host Local Event"
+                  : "Ask Something Nearby"
         }
       >
         {/* Dynamic Inner Menus */}
-        {createType === 'menu' && (
+        {createType === "menu" && (
           <div className="flex flex-col gap-3">
             <button
               id="action-find-daymates"
-              onClick={() => setCreateType('activity')}
+              onClick={() => setCreateType("activity")}
               className="flex items-center gap-4 p-4 border border-neutral-100 dark:border-neutral-800/80 bg-neutral-50 dark:bg-neutral-900/50 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 hover:border-emerald-500/40 dark:hover:border-emerald-500/30 rounded-2xl text-left transition-all duration-150 cursor-pointer group"
             >
               <div className="p-3 bg-neutral-900 dark:bg-neutral-800 text-white rounded-xl transition-transform group-hover:scale-105">
                 <Calendar className="w-5 h-5 transition-colors group-hover:text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm font-bold text-neutral-800 dark:text-neutral-100 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">👥 Find Day Mates</p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Meet people for cricket, lunch, coffee, or movies today.</p>
+                <p className="text-sm font-bold text-neutral-800 dark:text-neutral-100 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                  👥 Find Day Mates
+                </p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  Meet people for cricket, lunch, coffee, or movies today.
+                </p>
               </div>
             </button>
 
             <button
               id="action-sell-ticket"
-              onClick={() => setCreateType('ticket')}
+              onClick={() => setCreateType("ticket")}
               className="flex items-center gap-4 p-4 border border-neutral-100 dark:border-neutral-800/80 bg-neutral-50 dark:bg-neutral-900/50 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 hover:border-emerald-500/40 dark:hover:border-emerald-500/30 rounded-2xl text-left transition-all duration-150 cursor-pointer group"
             >
               <div className="p-3 bg-amber-500 text-white rounded-xl transition-transform group-hover:scale-105">
                 <Ticket className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-neutral-800 dark:text-neutral-100 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">🎟 Sell Ticket</p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Sell last-minute extra tickets to people nearby securely.</p>
+                <p className="text-sm font-bold text-neutral-800 dark:text-neutral-100 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                  🎟 Sell Ticket
+                </p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  Sell last-minute extra tickets to people nearby securely.
+                </p>
               </div>
             </button>
 
             <button
               id="action-host-event"
               onClick={() => {
-                toast('🎉 Event Hosting currently premium invite-only! Posted simulator placeholder.');
+                toast(
+                  "🎉 Event Hosting currently premium invite-only! Posted simulator placeholder.",
+                );
                 setIsDrawerOpen(false);
               }}
               className="flex items-center gap-4 p-4 border border-neutral-100 dark:border-neutral-800/80 bg-neutral-50 dark:bg-neutral-900/50 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 hover:border-emerald-500/40 dark:hover:border-emerald-500/30 rounded-2xl text-left transition-all duration-150 cursor-pointer group"
@@ -616,15 +709,19 @@ export const AppLayout: React.FC = () => {
                 <Award className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-neutral-800 dark:text-neutral-100 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">🎉 Host Event</p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Organize pub crawls, turf games, or community mixers.</p>
+                <p className="text-sm font-bold text-neutral-800 dark:text-neutral-100 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                  🎉 Host Event
+                </p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  Organize pub crawls, turf games, or community mixers.
+                </p>
               </div>
             </button>
 
             <button
               id="action-ask-nearby"
               onClick={() => {
-                toast('📢 Community Question Board opening soon today!');
+                toast("📢 Community Question Board opening soon today!");
                 setIsDrawerOpen(false);
               }}
               className="flex items-center gap-4 p-4 border border-neutral-100 dark:border-neutral-800/80 bg-neutral-50 dark:bg-neutral-900/50 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 hover:border-emerald-500/40 dark:hover:border-emerald-500/30 rounded-2xl text-left transition-all duration-150 cursor-pointer group"
@@ -633,15 +730,19 @@ export const AppLayout: React.FC = () => {
                 <HelpCircle className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-neutral-800 dark:text-neutral-100 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">📢 Ask Something Nearby</p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Ask questions about crowds, entry-fees, or recommend bars.</p>
+                <p className="text-sm font-bold text-neutral-800 dark:text-neutral-100 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                  📢 Ask Something Nearby
+                </p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  Ask questions about crowds, entry-fees, or recommend bars.
+                </p>
               </div>
             </button>
           </div>
         )}
 
         {/* Activity Creation Form */}
-        {createType === 'activity' && (
+        {createType === "activity" && (
           <form onSubmit={handleActivitySubmit} className="flex flex-col gap-4">
             <Input
               id="act-title-input"
@@ -652,17 +753,29 @@ export const AppLayout: React.FC = () => {
             />
 
             <div className="flex flex-col gap-1.5 font-sans">
-              <label className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Category</label>
+              <label className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+                Category
+              </label>
               <div className="grid grid-cols-4 gap-2">
-                {(['Cricket', 'Coffee', 'Movie', 'Lunch', 'Badminton', 'Pizza', 'Other'] as const).map((cat) => (
+                {(
+                  [
+                    "Cricket",
+                    "Coffee",
+                    "Movie",
+                    "Lunch",
+                    "Badminton",
+                    "Pizza",
+                    "Other",
+                  ] as const
+                ).map((cat) => (
                   <button
                     key={cat}
                     type="button"
                     onClick={() => setActCategory(cat)}
                     className={`py-2 text-xs font-semibold rounded-lg border transition cursor-pointer ${
                       actCategory === cat
-                        ? 'border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-950 font-black'
-                        : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900'
+                        ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-950 font-black"
+                        : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900"
                     }`}
                   >
                     {cat}
@@ -688,16 +801,22 @@ export const AppLayout: React.FC = () => {
             />
 
             <div className="flex justify-between items-center bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800/80">
-              <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">How many people needed?</span>
+              <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+                How many people needed?
+              </span>
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setActPeopleNeeded(Math.max(1, actPeopleNeeded - 1))}
+                  onClick={() =>
+                    setActPeopleNeeded(Math.max(1, actPeopleNeeded - 1))
+                  }
                   className="w-8 h-8 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-bold text-sm text-neutral-600 dark:text-neutral-300 flex items-center justify-center hover:bg-neutral-50 dark:hover:bg-neutral-700 transition cursor-pointer"
                 >
                   -
                 </button>
-                <span className="text-sm font-bold text-neutral-800 dark:text-neutral-100">{actPeopleNeeded}</span>
+                <span className="text-sm font-bold text-neutral-800 dark:text-neutral-100">
+                  {actPeopleNeeded}
+                </span>
                 <button
                   type="button"
                   onClick={() => setActPeopleNeeded(actPeopleNeeded + 1)}
@@ -709,10 +828,19 @@ export const AppLayout: React.FC = () => {
             </div>
 
             <div className="flex gap-2 mt-2">
-              <Button type="button" variant="outline" className="flex-1 dark:border-neutral-800 dark:hover:bg-neutral-900" onClick={() => setCreateType('menu')}>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 dark:border-neutral-800 dark:hover:bg-neutral-900"
+                onClick={() => setCreateType("menu")}
+              >
                 Back
               </Button>
-              <Button type="submit" isLoading={isPending} className="flex-1 bg-neutral-900 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 text-white font-bold">
+              <Button
+                type="submit"
+                isLoading={isPending}
+                className="flex-1 bg-neutral-900 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 text-white font-bold"
+              >
                 Create Opportunity
               </Button>
             </div>
@@ -720,7 +848,7 @@ export const AppLayout: React.FC = () => {
         )}
 
         {/* Ticket Swap Creation Form */}
-        {createType === 'ticket' && (
+        {createType === "ticket" && (
           <form onSubmit={handleTicketSubmit} className="flex flex-col gap-4">
             <Input
               id="tkt-title-input"
@@ -731,17 +859,28 @@ export const AppLayout: React.FC = () => {
             />
 
             <div className="flex flex-col gap-1.5 font-sans">
-              <label className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Category</label>
+              <label className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+                Category
+              </label>
               <div className="grid grid-cols-4 gap-2">
-                {(['Movie', 'F1', 'Concert', 'Sports', 'Drama', 'Other'] as const).map((cat) => (
+                {(
+                  [
+                    "Movie",
+                    "F1",
+                    "Concert",
+                    "Sports",
+                    "Drama",
+                    "Other",
+                  ] as const
+                ).map((cat) => (
                   <button
                     key={cat}
                     type="button"
                     onClick={() => setTktCategory(cat)}
                     className={`py-2 text-xs font-semibold rounded-lg border transition cursor-pointer ${
                       tktCategory === cat
-                        ? 'border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-950 font-black'
-                        : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900'
+                        ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-950 font-black"
+                        : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900"
                     }`}
                   >
                     {cat}
@@ -778,10 +917,19 @@ export const AppLayout: React.FC = () => {
             />
 
             <div className="flex gap-2 mt-2">
-              <Button type="button" variant="outline" className="flex-1 dark:border-neutral-800 dark:hover:bg-neutral-900" onClick={() => setCreateType('menu')}>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 dark:border-neutral-800 dark:hover:bg-neutral-900"
+                onClick={() => setCreateType("menu")}
+              >
                 Back
               </Button>
-              <Button type="submit" isLoading={isPending} className="flex-1 bg-amber-500 hover:bg-amber-600 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300 text-white font-bold">
+              <Button
+                type="submit"
+                isLoading={isPending}
+                className="flex-1 bg-amber-500 hover:bg-amber-600 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300 text-white font-bold"
+              >
                 List Ticket
               </Button>
             </div>
