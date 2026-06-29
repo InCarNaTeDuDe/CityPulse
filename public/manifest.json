@@ -1,0 +1,36 @@
+{
+  "short_name": "DayMates",
+  "name": "DayMates - Companions & Tickets",
+  "description": "Meet verified local companions for activities or swap unused event tickets safely.",
+  "id": "/?source=pwa",
+  "start_url": "/?source=pwa",
+  "background_color": "#09090b",
+  "theme_color": "#059669",
+  "display": "standalone",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "categories": ["social", "entertainment"],
+  "shortcuts": [
+    {
+      "name": "Chats",
+      "url": "/chats",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Profile",
+      "url": "/profile",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

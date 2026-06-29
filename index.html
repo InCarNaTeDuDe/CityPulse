@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DayMates & TicketSwap - Local Companions & Secure Event Ticket Exchange</title>
+    <meta name="description" content="Discover hyper-local activity companions and swap event tickets safely. DayMates secures transactions via double-ledger escrow so you can connect, share turf games, and trade unused slots with complete peace of mind." />
+    <meta name="keywords" content="DayMates, TicketSwap, local companions, sports buddies, ticket resale, escrow gateway, hyper-local community, sold out events, turf games, cricket matches" />
+    <meta name="author" content="DayMates Platform" />
+    <meta property="og:title" content="DayMates & TicketSwap - Hyper-Local Companionship & Ticket Resale" />
+    <meta property="og:description" content="Meet real people in your neighborhood and trade tickets securely. Zero-trust validation, double-ledger escrow protection, and peer-to-peer verification." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DayMates & TicketSwap - Local Companions & Secure Ticket Exchange" />
+    <meta name="twitter:description" content="Meet real people in your neighborhood and trade tickets securely. Zero-trust validation and double-ledger escrow protection." />
+    
+    <!-- PWA Integration -->
+    <link rel="icon" type="image/png" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#8b5cf6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="DayMates" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('PWA ServiceWorker registered with scope:', reg.scope))
+            .catch(err => console.error('PWA ServiceWorker registration failed:', err));
+        });
+      }
+    </script>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "DayMates & TicketSwap",
+      "url": "https://ais-pre-34kfft3h4f3guvy6o5xyyi-590655696391.asia-southeast1.run.app",
+      "description": "Discover hyper-local activity companions and swap event tickets safely using double-ledger escrow protection.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://ais-pre-34kfft3h4f3guvy6o5xyyi-590655696391.asia-southeast1.run.app/?search={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "DayMates Platform",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://ais-pre-34kfft3h4f3guvy6o5xyyi-590655696391.asia-southeast1.run.app/logo.png"
+        }
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

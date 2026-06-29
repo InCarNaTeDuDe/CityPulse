@@ -1,0 +1,7 @@
+/* Theme color palette settings */
+:root {
+  --color-primary-neutral: #171717;
+  --color-accent-amber: #f59e0b;
+  --color-bg-base: #f5f5f5;
+  --font-display: "Inter", system-ui, sans-serif;
+}

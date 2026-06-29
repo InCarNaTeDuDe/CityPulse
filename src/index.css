@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  --color-emerald-50: oklch(97.5% 0.015 302.0);
+  --color-emerald-100: oklch(93.5% 0.035 302.0);
+  --color-emerald-200: oklch(86% 0.07 302.0);
+  --color-emerald-300: oklch(78% 0.11 302.0);
+  --color-emerald-400: oklch(71% 0.14 302.0);
+  --color-emerald-500: oklch(62% 0.17 302.0);
+  --color-emerald-600: oklch(54% 0.16 302.0);
+  --color-emerald-700: oklch(46% 0.14 302.0);
+  --color-emerald-800: oklch(38% 0.12 302.0);
+  --color-emerald-900: oklch(30% 0.09 302.0);
+  --color-emerald-950: oklch(18% 0.06 302.0);
+
+  --color-green-50: oklch(97.5% 0.015 302.0);
+  --color-green-100: oklch(93.5% 0.035 302.0);
+  --color-green-200: oklch(86% 0.07 302.0);
+  --color-green-300: oklch(78% 0.11 302.0);
+  --color-green-400: oklch(71% 0.14 302.0);
+  --color-green-500: oklch(62% 0.17 302.0);
+  --color-green-600: oklch(54% 0.16 302.0);
+  --color-green-700: oklch(46% 0.14 302.0);
+  --color-green-800: oklch(38% 0.12 302.0);
+  --color-green-900: oklch(30% 0.09 302.0);
+  --color-green-950: oklch(18% 0.06 302.0);
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+@keyframes bellShake {
+  0%, 100% { transform: rotate(0deg); }
+  15% { transform: rotate(-15deg); }
+  30% { transform: rotate(15deg); }
+  45% { transform: rotate(-15deg); }
+  60% { transform: rotate(15deg); }
+  75% { transform: rotate(-10deg); }
+  85% { transform: rotate(10deg); }
+}
+
+@keyframes badgeScale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+@keyframes blinkInbox {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(244, 63, 94, 0.4)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.75)); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-bell-shake {
+  animation: bellShake 0.6s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+.animate-badge-scale {
+  animation: badgeScale 1.2s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-blink-inbox {
+  animation: blinkInbox 1.5s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
