@@ -48,11 +48,34 @@ export const AppLayout: React.FC = () => {
   const [animateInbox, setAnimateInbox] = useState(false);
   const [animateAlerts, setAnimateAlerts] = useState(false);
 
-  const getGreeting = () => {
-    const hours = new Date().getHours();
-    if (hours < 12) return "Good Morning";
-    if (hours < 18) return "Good Afternoon";
-    return "Good Evening";
+  const getGreetingMeta = () => {
+    const hour = new Date().getHours();
+
+    if (hour < 12) {
+      return {
+        greeting: "Good Morning",
+        emoji: "😊",
+      };
+    }
+
+    if (hour < 18) {
+      return {
+        greeting: "Good Afternoon",
+        emoji: "😄",
+      };
+    }
+
+    if (hour < 21) {
+      return {
+        greeting: "Good Evening",
+        emoji: "🤗",
+      };
+    }
+
+    return {
+      greeting: "Good Night",
+      emoji: "😴",
+    };
   };
 
   // Web Audio API beep sound
@@ -302,6 +325,8 @@ export const AppLayout: React.FC = () => {
     setIsDrawerOpen(true);
   };
 
+  const greeting = getGreetingMeta();
+
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950 flex flex-col md:flex-row items-stretch transition-[background-color] duration-150">
       {/* 1. Desktop Left Sidebar Navigation (visible only on md and up) */}
@@ -445,20 +470,30 @@ export const AppLayout: React.FC = () => {
         <div className="w-full flex-1 flex flex-col relative overflow-hidden pb-24 md:pb-6 transition-[background-color] duration-150 text-neutral-900 dark:text-neutral-100">
           {/* Global Top Header Bar - Throughout Web & Mobile */}
           <header className="flex justify-between items-center px-5 py-3.5 border-b border-neutral-100 dark:border-neutral-900 bg-white/90 dark:bg-neutral-950/90 backdrop-blur-md sticky top-0 z-20 transition-[background-color,border-color] duration-150">
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">
                 ⚡
               </span>
               <span className="font-black text-sm tracking-tight text-neutral-800 dark:text-neutral-100">
                 DayMates
               </span>
-            </div>
+            </div> */}
 
-            <div className="flex items-center gap-3">
-              <span className="text-xs sm:text-sm font-black text-neutral-700 dark:text-neutral-300 inline-block truncate max-w-[160px] xs:max-w-[200px] sm:max-w-none">
-                👋 {getGreeting()},
-                <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">
-                  {user?.name || ""}
+            <div className="ml-auto flex items-center gap-3">
+              <span className="flex items-center text-xs sm:text-sm font-black text-neutral-700 dark:text-neutral-300 truncate max-w-[220px] sm:max-w-none">
+                <span
+                  className="animate-greeting mr-1.5 text-xl select-none"
+                  role="img"
+                  aria-label="Greeting"
+                >
+                  {greeting.emoji}
+                </span>
+
+                <span>
+                  {greeting.greeting},
+                  <span className="ml-1 text-emerald-600 dark:text-emerald-400 font-extrabold">
+                    {user?.name?.split(" ")?.at(0) || ""}
+                  </span>
                 </span>
               </span>
 
